@@ -4,6 +4,8 @@ import logging
 import os
 import requests
 import sys
+import base64
+from io import BytesIO
 
 ### SETUP: FLASK ###
 app = Flask('gramophone')
@@ -39,6 +41,12 @@ def configure_logging(verbosity):
     )
     logging.captureWarnings(True)
 
+
+# lists that hold all the images/phrases in the game so far
+image_collection = []
+phrase_collection = []
+
+
 ### APIs ###
 @app.route('/test', methods=['POST'])
 def test():
@@ -55,6 +63,27 @@ def speech2img():
         'results']['channels'][0]['alternatives'][0]['transcript']
     # pass transcript to `app.config['TEXT_TO_IMG_MODEL']`
     # how to return text and image? do we just save an image and return a path?
+
+    generated_img = generate_image(transcript)
+    image_collection.append(imgToBase64(generated_img))
+    phrase_collection.append(transcript)
+
+    phrases_and_images = [{"phrase": phrase, "img": img} for phrase, img in zip(phrase_collection, image_collection)]
+
+    return jsonify(phrases_and_images)
+
+
+def generate_image(prompt: str):
+    # generate image from the text via DALL-E
+    pass
+
+
+def imgToBase64(img):
+    buffered = BytesIO()
+    img.save(buffered, format="JPEG")
+    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
+    return img_str
+
 
 def deepgram_consoleASR(
         data, headers=None, request_kwargs=None,
