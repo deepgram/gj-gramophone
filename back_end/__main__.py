@@ -1,14 +1,8 @@
 import argparse
 from flask import Flask, flash, request, jsonify, send_file, Response
 import logging
-import os
 import requests
 import sys
-import base64
-from io import BytesIO
-
-from flax.jax_utils import replicate
-from flax.training.common_utils import shard_prng_key
 
 
 ### SETUP: FLASK ###
@@ -69,9 +63,7 @@ def speech2img():
 
     generated_img = generate_image(transcript)
 
-    phrases_and_images = [{"prompt": transcript, "img": generated_img}]
-
-    return jsonify(phrases_and_images)
+    return jsonify({"prompt": transcript, "img": generated_img})
     # return transcript
 
 
