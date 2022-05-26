@@ -1,3 +1,4 @@
 # IDE
 .idea
 __pycache__/
+front_end/.DS_Store
