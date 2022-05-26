@@ -3,6 +3,10 @@ from flask import Flask, flash, request, jsonify, send_file, Response
 import logging
 import requests
 import sys
+import glob
+import os
+import pickle
+import shutil
 
 
 ### SETUP: FLASK ###
@@ -58,7 +62,29 @@ def speech2img():
 
     generated_img = generate_image(transcript)
 
-    return jsonify({"prompt": transcript, "img": generated_img})
+    data_dir = "images"
+    os.makedirs(data_dir, exist_ok=True)
+    max_game_size = 10
+    existing_files = glob.glob(os.path.join(data_dir, "*.pkl"))
+    new_filename = f"{len(existing_files)}.pkl"
+    new_output = {"prompt": transcript, "img": generated_img}
+    if len(existing_files) < max_game_size - 1:
+        with open(new_filename, "wb") as outfile:
+            pickle.dump(
+                new_output, outfile
+            )
+
+    existing_outputs = []
+    for file_number in range(len(existing_files)):
+        with open(f"{file_number}.pkl", "rb") as infile:
+            existing_outputs.append(pickle.load(infile))
+    existing_outputs.append(new_output)
+
+    if len(existing_outputs) >= max_game_size:
+        # delete everything on disk
+        shutil.rmtree(data_dir)
+
+    return jsonify(existing_outputs)
 
 
 def generate_image(prompt: str):
