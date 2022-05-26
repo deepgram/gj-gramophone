@@ -53,7 +53,7 @@ def test():
     pass
     # how to return text and image? do we just save an image and return a path?
 
-@app.route('/speech2img', method=['POST'])
+@app.route('/speech2img', methods=['POST'])
 def speech2img():
     response = deepgram_consoleASR(
         request.get_data(), headers=request.headers,
