@@ -64,7 +64,7 @@ def speech2img():
         get_new_image_and_history(transcript)
     )
 
-@app.route('/text2img', method=['POST'])
+@app.route('/text2img', methods=['POST'])
 def text2img():
     return jsonify(
         get_new_image_and_history(request.json['text'])
