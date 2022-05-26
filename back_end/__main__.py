@@ -6,15 +6,6 @@ import requests
 import sys
 import base64
 from io import BytesIO
-from dalle_mini import DalleBart, DalleBartProcessor
-from functools import partial
-
-import jax
-import random
-import numpy as np
-import jax.numpy as jnp
-from PIL import Image
-from vqgan_jax.modeling_flax_vqgan import VQModel
 
 from flax.jax_utils import replicate
 from flax.training.common_utils import shard_prng_key
@@ -55,56 +46,6 @@ def configure_logging(verbosity):
     logging.captureWarnings(True)
 
 
-# lists that hold all the images/phrases in the game so far
-image_collection = []
-phrase_collection = []
-
-
-# model
-
-DALLE_MODEL = "dalle-mini/dalle-mini/wzoooa1c:latest"
-DALLE_COMMIT_ID = None
-model = DalleBart.from_pretrained(DALLE_MODEL, revision=DALLE_COMMIT_ID)
-model._params = replicate(model.params)
-processor = DalleBartProcessor.from_pretrained(DALLE_MODEL, revision=DALLE_COMMIT_ID)
-
-# VQGAN model
-VQGAN_REPO = "dalle-mini/vqgan_imagenet_f16_16384"
-VQGAN_COMMIT_ID = "e93a26e7707683d349bf5d5c41c5b0ef69b677a9"
-vqgan = VQModel.from_pretrained(VQGAN_REPO, revision=VQGAN_COMMIT_ID)
-vqgan._params = replicate(vqgan.params)
-
-
-gen_top_k = None
-gen_top_p = 0.9
-temperature = None
-cond_scale = 3.0
-
-# model inference
-@partial(jax.pmap, axis_name="batch", static_broadcasted_argnums=(3, 4, 5, 6))
-def p_generate(tokenized_prompt, key, params, top_k, top_p, temperature, condition_scale):
-    return model.generate(
-        **tokenized_prompt,
-        prng_key=key,
-        params=params,
-        top_k=top_k,
-        top_p=top_p,
-        temperature=temperature,
-        condition_scale=condition_scale,
-    )
-
-
-# decode images
-@partial(jax.pmap, axis_name="batch")
-def p_decode(indices, params):
-    return vqgan.decode_code(indices, params=params)
-
-  
-def tokenize_prompt(prompt: str):
-  tokenized_prompt = processor([prompt])
-  return replicate(tokenized_prompt)
-
-
 
 ### APIs ###
 @app.route('/test', methods=['GET'])
@@ -122,52 +63,27 @@ def speech2img():
     #     'results']['channels'][0]['alternatives'][0]['transcript']
 
     transcript = request.json["text"]
-    # print(transcript)
     
     # pass transcript to `app.config['TEXT_TO_IMG_MODEL']`
     # how to return text and image? do we just save an image and return a path?
 
     generated_img = generate_image(transcript)
-    image_collection.append(imgToBase64(generated_img))
-    phrase_collection.append(transcript)
 
-    phrases_and_images = [{"phrase": phrase, "img": img} for phrase, img in zip(phrase_collection, image_collection)]
+    phrases_and_images = [{"prompt": transcript, "img": generated_img}]
 
     return jsonify(phrases_and_images)
     # return transcript
 
 
 def generate_image(prompt: str):
-    # generate image from the text via DALL-E
-    tokenized_prompt = tokenize_prompt(prompt)
-    
-    # create a random key
-    seed = random.randint(0, 2**32 - 1)
-    key = jax.random.PRNGKey(seed)
+    response = requests.post("http://sv1-j.node.sv1.consul:8093/dalle", json={"text": prompt, "num_images": 1})
+    img_str = response.json()[0]
 
-    key, subkey = jax.random.split(key)
-    
-    encoded_image = p_generate(tokenized_prompt, shard_prng_key(subkey),
-        model.params, gen_top_k, gen_top_p, temperature, cond_scale,
-    )
-    
-    # remove BOS
-    encoded_image = encoded_image.sequences[..., 1:]
-
-    # decode images
-    decoded_image = p_decode(encoded_image, vqgan.params)
-    decoded_image = decoded_image.clip(0.0, 1.0).reshape((-1, 256, 256, 3))
-    image = Image.fromarray(np.asarray(img * 255, dtype=np.uint8))
-            
-    return image
-
-
-def imgToBase64(img):
-    buffered = BytesIO()
-    img.save(buffered, format="JPEG")
-    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
     return img_str
 
+    # img_data = base64.b64decode(img_str)
+    # with open("gramophone.jpg", "wb") as f:
+    #     f.write(img_data)
 
 def deepgram_consoleASR(
         data, headers=None, request_kwargs=None,
