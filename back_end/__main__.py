@@ -49,22 +49,16 @@ def test():
 
 @app.route('/speech2img', methods=['POST'])
 def speech2img():
-    # response = deepgram_consoleASR(
-    #     request.get_data(), headers=request.headers,
-    #     request_kwargs=request.args
-    # )
-    # transcript = response.json()[
-    #     'results']['channels'][0]['alternatives'][0]['transcript']
-
-    transcript = request.json["text"]
-    
-    # pass transcript to `app.config['TEXT_TO_IMG_MODEL']`
-    # how to return text and image? do we just save an image and return a path?
+    response = deepgram_consoleASR(
+        request.get_data(), headers=request.headers,
+        request_kwargs=request.args
+    )
+    transcript = response.json()[
+        'results']['channels'][0]['alternatives'][0]['transcript']
 
     generated_img = generate_image(transcript)
 
     return jsonify({"prompt": transcript, "img": generated_img})
-    # return transcript
 
 
 def generate_image(prompt: str):
