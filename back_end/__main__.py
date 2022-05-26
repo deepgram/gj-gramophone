@@ -3,6 +3,10 @@ from flask import Flask, flash, request, jsonify, send_file, Response
 import logging
 import requests
 import sys
+import glob
+import os
+import pickle
+import shutil
 
 
 ### SETUP: FLASK ###
@@ -56,9 +60,44 @@ def speech2img():
     transcript = response.json()[
         'results']['channels'][0]['alternatives'][0]['transcript']
 
-    generated_img = generate_image(transcript)
+    return jsonify(
+        get_new_image_and_history(transcript)
+    )
 
-    return jsonify({"prompt": transcript, "img": generated_img})
+@app.route('/text2img', methods=['POST'])
+def text2img():
+    return jsonify(
+        get_new_image_and_history(request.json['text'])
+    )
+
+
+def get_new_image_and_history(text: str):
+    generated_img = generate_image(text)
+
+    data_dir = "images"
+    os.makedirs(data_dir, exist_ok=True)
+    max_game_size = 10
+    existing_files = glob.glob(os.path.join(data_dir, "*.pkl"))
+    new_output = {"prompt": text, "img": generated_img}
+    if len(existing_files) < max_game_size - 1:
+        new_filename = os.path.join(data_dir, f"{len(existing_files)}.pkl")
+        with open(new_filename, "wb") as outfile:
+            pickle.dump(
+                new_output, outfile
+            )
+
+    existing_outputs = []
+    for file_number in range(len(existing_files)):
+        filename = os.path.join(data_dir, f"{file_number}.pkl")
+        with open(filename, "rb") as infile:
+            existing_outputs.append(pickle.load(infile))
+    existing_outputs.append(new_output)
+
+    if len(existing_outputs) >= max_game_size:
+        # delete everything on disk
+        shutil.rmtree(data_dir)
+
+    return existing_outputs
 
 
 def generate_image(prompt: str):
