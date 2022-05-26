@@ -60,13 +60,25 @@ def speech2img():
     transcript = response.json()[
         'results']['channels'][0]['alternatives'][0]['transcript']
 
-    generated_img = generate_image(transcript)
+    return jsonify(
+        get_new_image_and_history(transcript)
+    )
+
+@app.route('/text2img', method=['POST'])
+def text2img():
+    return jsonify(
+        get_new_image_and_history(request.json['text'])
+    )
+
+
+def get_new_image_and_history(text: str):
+    generated_img = generate_image(text)
 
     data_dir = "images"
     os.makedirs(data_dir, exist_ok=True)
     max_game_size = 10
     existing_files = glob.glob(os.path.join(data_dir, "*.pkl"))
-    new_output = {"prompt": transcript, "img": generated_img}
+    new_output = {"prompt": text, "img": generated_img}
     if len(existing_files) < max_game_size - 1:
         new_filename = os.path.join(data_dir, f"{len(existing_files)}.pkl")
         with open(new_filename, "wb") as outfile:
@@ -85,7 +97,7 @@ def speech2img():
         # delete everything on disk
         shutil.rmtree(data_dir)
 
-    return jsonify(existing_outputs)
+    return existing_outputs
 
 
 def generate_image(prompt: str):
