@@ -1,11 +1,9 @@
 import argparse
 from flask import Flask, flash, request, jsonify, send_file, Response
 import logging
-import os
 import requests
 import sys
-import base64
-from io import BytesIO
+
 
 ### SETUP: FLASK ###
 app = Flask('gramophone')
@@ -42,15 +40,11 @@ def configure_logging(verbosity):
     logging.captureWarnings(True)
 
 
-# lists that hold all the images/phrases in the game so far
-image_collection = []
-phrase_collection = []
-
 
 ### APIs ###
-@app.route('/test', methods=['POST'])
+@app.route('/test', methods=['GET'])
 def test():
-    pass
+    return "Hello world"
     # how to return text and image? do we just save an image and return a path?
 
 @app.route('/speech2img', methods=['POST'])
@@ -61,29 +55,21 @@ def speech2img():
     )
     transcript = response.json()[
         'results']['channels'][0]['alternatives'][0]['transcript']
-    # pass transcript to `app.config['TEXT_TO_IMG_MODEL']`
-    # how to return text and image? do we just save an image and return a path?
 
     generated_img = generate_image(transcript)
-    image_collection.append(imgToBase64(generated_img))
-    phrase_collection.append(transcript)
 
-    phrases_and_images = [{"phrase": phrase, "img": img} for phrase, img in zip(phrase_collection, image_collection)]
-
-    return jsonify(phrases_and_images)
+    return jsonify({"prompt": transcript, "img": generated_img})
 
 
 def generate_image(prompt: str):
-    # generate image from the text via DALL-E
-    pass
+    response = requests.post("http://sv1-j.node.sv1.consul:8093/dalle", json={"text": prompt, "num_images": 1})
+    img_str = response.json()[0]
 
-
-def imgToBase64(img):
-    buffered = BytesIO()
-    img.save(buffered, format="JPEG")
-    img_str = base64.b64encode(buffered.getvalue()).decode("utf-8")
     return img_str
 
+    # img_data = base64.b64decode(img_str)
+    # with open("gramophone.jpg", "wb") as f:
+    #     f.write(img_data)
 
 def deepgram_consoleASR(
         data, headers=None, request_kwargs=None,
