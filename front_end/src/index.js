@@ -17,7 +17,7 @@
 */
 import React from "react";
 import ReactDOM from "react-dom";
-import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 
 import "assets/vendor/nucleo/css/nucleo.css";
 import "assets/vendor/font-awesome/css/font-awesome.min.css";
@@ -31,7 +31,7 @@ import Register from "views/examples/Register.js";
 
 ReactDOM.render(
   <BrowserRouter>
-    <Switch>
+    <Routes>
       <Route path="/" exact render={props => <Index {...props} />} />
       <Route
         path="/landing-page"
@@ -49,8 +49,8 @@ ReactDOM.render(
         exact
         render={props => <Register {...props} />}
       />
-      <Redirect to="/" />
-    </Switch>
+      component: () => <Navigate to="/404" />
+    </Routes>
   </BrowserRouter>,
   document.getElementById("root")
 );
