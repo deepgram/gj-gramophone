@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { ChatClient } from './chat-client';
 
-const URL = 'wss://26kh21p6ti.execute-api.us-east-2.amazonaws.com/production';
+// const url = 'wss://26kh21p6ti.execute-api.us-east-2.amazonaws.com/production';
 
 const App = () => {
 
@@ -9,6 +9,7 @@ const App = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [members, setMembers] = useState([]);
   const [chatRows, setChatRows] = useState<React.ReactNode[]>([]);
+
 
   const onSocketOpen = useCallback(() => {
     setIsConnected(true);
@@ -29,7 +30,7 @@ const App = () => {
     } else if (data.publicMessage) {
       setChatRows(oldArray => [...oldArray, <span><b>{data.publicMessage}</b></span>]);
     } else if (data.privateMessage) {
-       alert(data.privateMessage);
+      alert(data.privateMessage);
     } else if (data.systemMessage) {
       setChatRows(oldArray => [...oldArray, <span><i>{data.systemMessage}</i></span>]);
     }
@@ -37,7 +38,7 @@ const App = () => {
 
   const onConnect = useCallback(() => {
     if (socket.current?.readyState !== WebSocket.OPEN) {
-      socket.current = new WebSocket(URL);
+      socket.current = new WebSocket(url);
       socket.current.addEventListener('open', onSocketOpen);
       socket.current.addEventListener('close', onSocketClose);
       socket.current.addEventListener('message', (event) => {
@@ -53,20 +54,39 @@ const App = () => {
   }, []);
 
   const onSendPrivateMessage = useCallback((to: string) => {
-    const message = prompt('Enter private message for ' + to);
+    const message = "yo";
     socket.current?.send(JSON.stringify({
       action: 'sendPrivate',
-        message,
-        to,
-     }));
-   }, []);
+      message,
+      to,
+    }));
+  }, []);
 
   const onSendPublicMessage = useCallback(() => {
-    const message = prompt('Enter public message');
-    socket.current?.send(JSON.stringify({
-      action: 'sendPublic',
-      message,
-    }));
+    navigator.mediaDevices.getUserMedia({ audio: true })
+      .then(stream => {
+        console.log("has stream")
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.start();
+
+        const audioChunks: BlobPart[] = [];
+
+        mediaRecorder.addEventListener("dataavailable", event => {
+          audioChunks.push(event.data);
+        });
+
+        mediaRecorder.addEventListener("stop", () => {
+          const audioBlob = new Blob(audioChunks);
+          const audioUrl = URL.createObjectURL(audioBlob);
+          const audio = new Audio(audioUrl);
+          audio.play();
+          console.log("finish playing");
+        });
+
+        setTimeout(() => {
+          mediaRecorder.stop();
+        }, 10000);
+      });
   }, []);
 
   const onDisconnect = useCallback(() => {

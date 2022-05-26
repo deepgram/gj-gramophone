@@ -24,7 +24,7 @@ export const ChatClient = (props: Props) => {
       position: 'absolute',
       width: '100%',
       height: '100%',
-      backgroundColor: '#f4ede3',
+      backgroundColor: '#bf9a84',
       display: 'flex',
       alignItems: 'center',
     }}>
