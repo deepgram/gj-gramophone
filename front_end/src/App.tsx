@@ -28,8 +28,8 @@ const App = () => {
       setMembers(data.members);
     } else if (data.publicMessage) {
       setChatRows(oldArray => [...oldArray, <span><b>{data.publicMessage}</b></span>]);
-    } else if (data.privateMessage) {
-      alert(data.privateMessage);
+    // } else if (data.privateMessage) {
+    //   alert(data.privateMessage);
     } else if (data.systemMessage) {
       setChatRows(oldArray => [...oldArray, <span><i>{data.systemMessage}</i></span>]);
     }
@@ -52,14 +52,14 @@ const App = () => {
     };
   }, []);
 
-  const onSendPrivateMessage = useCallback((to: string) => {
-    const message = prompt('Enter private message for ' + to);
-    socket.current?.send(JSON.stringify({
-      action: 'sendPrivate',
-      message,
-      to,
-    }));
-  }, []);
+  // const onSendPrivateMessage = useCallback((to: string) => {
+  //   const message = prompt('Enter private message for ' + to);
+  //   socket.current?.send(JSON.stringify({
+  //     action: 'sendPrivate',
+  //     message,
+  //     to,
+  //   }));
+  // }, []);
 
   const onSendPublicMessage = useCallback(() => {
     const message = prompt('Enter public message');
@@ -80,7 +80,7 @@ const App = () => {
     members={members}
     chatRows={chatRows}
     onPublicMessage={onSendPublicMessage}
-    onPrivateMessage={onSendPrivateMessage}
+    // onPrivateMessage={onSendPrivateMessage}
     onConnect={onConnect}
     onDisconnect={onDisconnect}
   />;
