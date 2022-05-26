@@ -13,7 +13,7 @@ interface Props {
   members: string[];
   chatRows: React.ReactNode[];
   onPublicMessage: () => void;
-  // onPrivateMessage: (to: string) => void;
+  onPrivateMessage: (to: string) => void;
   onConnect: () => void;
   onDisconnect: () => void;
 }
@@ -34,8 +34,7 @@ export const ChatClient = (props: Props) => {
           <Grid item xs={2} style={{ backgroundColor: '#3e103f', color: 'white' }}>
             <List component="nav">
               {props.members.map(item =>
-                <ListItem key={item}> 
-                  {/* onClick={() => { props.onPrivateMessage(item); }} button> */}
+                <ListItem key={item} onClick={() => { props.onPrivateMessage(item); }} button>
                   <ListItemText style={{ fontWeight: 800 }} primary={item} />
                 </ListItem>
               )}
