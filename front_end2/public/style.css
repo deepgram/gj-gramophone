@@ -180,3 +180,11 @@ body {
 	border: none;
 	cursor: pointer;
 }
+
+.hiddenClass {
+	display: none;
+}
+
+.showClass {
+	display: inline !important;
+}

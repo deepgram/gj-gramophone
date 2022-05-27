@@ -5,6 +5,8 @@
 
 	let uname;
 
+	let numMessages = 0;
+
 	app.querySelector(".join-screen #join-user").addEventListener("click", function () {
 		let username = app.querySelector(".join-screen #username").value;
 		if (username.length == 0) {
@@ -43,14 +45,17 @@
 					// postData();
 					postData(audioBlob).then(data => {
 						// console.log(data); // JSON data parsed by `data.json()` call
-						const img = data[data.length-1]['img'];
+						const img = data[data.length - 1]['img'];
+						const txt = data[data.length - 1]['prompt'];
 						renderMessage("my", {
 							username: uname,
-							image: img
+							image: img,
+							text: txt
 						});
 						socket.emit("chat", {
 							username: uname,
-							image: img
+							image: img,
+							text: txt
 						});
 					});
 
@@ -60,7 +65,8 @@
 					mediaRecorder.stop();
 					document.getElementById("send-message").style.backgroundColor = oldColor;
 					document.getElementById("send-message").disabled = false;
-				}, 3000);
+
+				}, 3500);
 			});
 
 		// app.querySelector(".chat-screen #message-input").value = "";
@@ -76,7 +82,6 @@
 	});
 
 	socket.on("chat", function (message) {
-		console.log('hi1');
 		renderMessage("other", message);
 	});
 
@@ -101,7 +106,7 @@
 		});
 		// .then(res => {
 		// 	console.log(res.json());
-			
+
 		// });
 		// console.log(response.json())
 		return response.json(); // parses JSON response into native JavaScript objects
@@ -110,6 +115,19 @@
 	function renderMessage(type, message) {
 		let messageContainer = app.querySelector(".chat-screen .messages");
 		console.log(message);
+
+		if (type == "my" || type == "other"){
+			numMessages = numMessages + 1;
+		}
+
+		// var elements = document.getElementsByClassName('hiddenClass');
+		// for (var i in elements) {
+		// 	//if (elements.hasOwnProperty(i)) {
+		// 	console.log("hidden")
+		// 	elements[i].className = 'showClass';
+		// 	//}
+		// }
+
 		if (type == "my") {
 			let el = document.createElement("div");
 			el.setAttribute("class", "message my-message");
@@ -117,6 +135,7 @@
 				<div>
 					<div class="name">You:</div>
 					<div> <img src="data:image/png;base64,${message.image}" width="90%" height="90%"/> </div>
+					<div class="showClass"> Guess: ${message.text} </div>
 				</div>
 			`;
 			messageContainer.appendChild(el);
@@ -126,8 +145,9 @@
 			el.setAttribute("class", "message other-message");
 			el.innerHTML = `
 				<div>
-					<div class="name">${message.username}</div>
+					<div class="name">${message.username}:</div>
 					<div> <img src="data:image/png;base64,${message.image}" width="100%" height="90%"/> </div>
+					<div class="hiddenClass"> Guess: ${message.text} </div>
 				</div>
 			`;
 			messageContainer.appendChild(el);
@@ -137,6 +157,31 @@
 			el.innerText = message;
 			messageContainer.appendChild(el);
 		}
+		
+		if (numMessages >= 6){
+
+			let el = document.createElement("div");
+			el.setAttribute("class", "update");
+			el.innerText = "Game Over!";
+			messageContainer.appendChild(el);
+
+			let el2 = document.createElement("div");
+			el2.setAttribute("class", "update");
+			el2.innerText = "Click to play again!";
+			messageContainer.appendChild(el2);
+			numMessages = 0;
+
+
+			let elements = document.getElementsByClassName('hiddenClass');
+			for (let i in elements) {
+				//if (elements.hasOwnProperty(i)) {
+				console.log("hidden")
+				console.log(elements[i].textContent)
+				elements[i].className = 'showClass';
+				//}
+			}
+		}
+
 		// scroll chat to end
 		messageContainer.scrollTop = messageContainer.scrollHeight - messageContainer.clientHeight;
 	}
