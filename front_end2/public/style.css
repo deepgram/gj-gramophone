@@ -78,19 +78,20 @@ body {
 }
 
 .chat-screen .header {
-	background: #666A73;
+	background: #BF9A84;
 	height: 50px;
 	display: flex;
-	justify-content: space-between;
+	justify-content: center;
 	align-items: center;
-	padding: 0px 20px;
+	padding: 0px 0px;
 }
 
 .chat-screen .header .logo {
-	font-size: 18px;
-	color: #eee;
-	font-weight: 600;
+	font-size: 26px;
+	color: #260C13;
+	font-weight: 700;
 	font-family: 'Abhaya Libre', serif;
+	padding-bottom: 4px;
 }
 
 .chat-screen .header button {
@@ -101,6 +102,15 @@ body {
 	font-size: 15px;
 	cursor: pointer;
 	outline: none;
+}
+
+.outer {
+	position: absolute;
+	right: -162px;
+	bottom: 0px;
+	height: 210px;
+	width: 210px;
+	z-index: -5;
 }
 
 .chat-screen .messages {
@@ -123,17 +133,18 @@ body {
 }
 
 .chat-screen .messages .message.my-message {
-	justify-content: flex-end;
+	justify-content: center;
 }
 
 .chat-screen .messages .message.other-message {
-	justify-content: flex-start;
+	justify-content: center;
 }
 
 .chat-screen .messages .message .name {
 	font-size: 13px;
 	color: #260C13;
 	margin-bottom: 5px;
+	font-weight: bold;
 }
 
 .chat-screen .messages .message .text {
