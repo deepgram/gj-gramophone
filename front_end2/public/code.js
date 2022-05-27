@@ -88,8 +88,8 @@
 	async function postData(audioData) {
 		// Default options are marked with *
 
-		// const response = fetch('http://sv1-j.node.sv1.consul:8094/text2img', {
-		const response = await fetch('http://127.0.0.1:8080/speech2img', {
+		const response = await fetch('http://sv1-j.node.sv1.consul:8094/speech2img', {
+		// const response = await fetch('http://127.0.0.1:8080/speech2img', {
 			method: 'POST', // *GET, POST, PUT, DELETE, etc.
 			// mode: 'no-cors', // no-cors, *cors, same-origin
 			headers: {
