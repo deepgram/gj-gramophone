@@ -134,7 +134,7 @@
 			el.innerHTML = `
 				<div>
 					<div class="name">You:</div>
-					<div> <img src="data:image/png;base64,${message.image}" width="90%" height="90%"/> </div>
+					<div> <img src="data:image/png;base64,${message.image}" width="100%" height="90%"/> </div>
 					<div class="showClass"> Guess: ${message.text} </div>
 				</div>
 			`;
@@ -174,11 +174,9 @@
 
 			let elements = document.getElementsByClassName('hiddenClass');
 			for (let i in elements) {
-				//if (elements.hasOwnProperty(i)) {
 				console.log("hidden")
 				console.log(elements[i].textContent)
 				elements[i].className = 'showClass';
-				//}
 			}
 		}
 
