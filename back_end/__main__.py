@@ -58,6 +58,7 @@ def speech2img():
         request.get_data(), headers=request.headers,
         request_kwargs=request.args
     )
+    print(response.json())
     transcript = response.json()[
         'results']['channels'][0]['alternatives'][0]['transcript']
 

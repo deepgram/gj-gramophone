@@ -41,7 +41,7 @@
 					// audio.play();
 
 					// postData();
-					postData().then(data => {
+					postData(audioBlob).then(data => {
 						// console.log(data); // JSON data parsed by `data.json()` call
 						const img = data[data.length-1]['img'];
 						renderMessage("my", {
@@ -60,41 +60,44 @@
 					mediaRecorder.stop();
 					document.getElementById("send-message").style.backgroundColor = oldColor;
 					document.getElementById("send-message").disabled = false;
-				}, 1000);
+				}, 3000);
 			});
 
 		// app.querySelector(".chat-screen #message-input").value = "";
 	});
 
-	app.querySelector(".chat-screen #exit-chat").addEventListener("click", function () {
-		socket.emit("exituser", uname);
-		window.location.href = window.location.href;
-	});
+	// app.querySelector(".chat-screen #exit-chat").addEventListener("click", function () {
+	// 	socket.emit("exituser", uname);
+	// 	window.location.href = window.location.href;
+	// });
 
 	socket.on("update", function (update) {
 		renderMessage("update", update);
 	});
 
 	socket.on("chat", function (message) {
+		console.log('hi1');
 		renderMessage("other", message);
 	});
 
-	async function postData() {
+	async function postData(audioData) {
 		// Default options are marked with *
+
 		// const response = fetch('http://sv1-j.node.sv1.consul:8094/text2img', {
-		const response = await fetch('http://127.0.0.1:8080/text2img', {
+		const response = await fetch('http://127.0.0.1:8080/speech2img', {
 			method: 'POST', // *GET, POST, PUT, DELETE, etc.
 			// mode: 'no-cors', // no-cors, *cors, same-origin
-			// cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-			// credentials: 'same-origin', // include, *same-origin, omit
 			headers: {
-				'Content-Type': 'application/json'
-				// 'Authorization': 'Token b1c4bc5158fcad129d1d2412cf461e88bab70321'
+				// 'Content-Type': 'application/json'
+				'Content-Type': 'audio/webm',
+				'Authorization': 'Token b1c4bc5158fcad129d1d2412cf461e88bab70321'
 				// 'Content-Type': 'application/x-www-form-urlencoded',
 			},
 			// redirect: 'follow', // manual, *follow, error
 			// referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-			body: "{\"text\": \"party\"}" // body data type must match "Content-Type" header
+			// body: "{\"text\": \"party\"}" // body data type must match "Content-Type" header
+			// body: `{\"url\": \"${audioData}\"}`
+			body: audioData
 		});
 		// .then(res => {
 		// 	console.log(res.json());
@@ -118,6 +121,7 @@
 			`;
 			messageContainer.appendChild(el);
 		} else if (type == "other") {
+			console.log('yoyoy');
 			let el = document.createElement("div");
 			el.setAttribute("class", "message other-message");
 			el.innerHTML = `

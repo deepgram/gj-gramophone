@@ -16,10 +16,6 @@ io.on("connection", function (socket) {
 		socket.broadcast.emit("update", username + " left the conversation");
 	});
 	socket.on("chat", function (message) {
-		// make call to image
-		// ..
-		// get base64 encoding
-		console.log('hi');
 		socket.broadcast.emit("chat", message);
 	});
 });
