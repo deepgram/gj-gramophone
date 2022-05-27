@@ -140,7 +140,6 @@
 			`;
 			messageContainer.appendChild(el);
 		} else if (type == "other") {
-			console.log('yoyoy');
 			let el = document.createElement("div");
 			el.setAttribute("class", "message other-message");
 			el.innerHTML = `
@@ -172,10 +171,9 @@
 			numMessages = 0;
 
 
-			let elements = document.getElementsByClassName('hiddenClass');
+			let elements = document.getElementsByClassName("hiddenClass");
+			console.log(elements)
 			for (let i in elements) {
-				console.log("hidden")
-				console.log(elements[i].textContent)
 				elements[i].className = 'showClass';
 			}
 		}

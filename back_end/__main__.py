@@ -124,7 +124,7 @@ def deepgram_consoleASR(
         request_kwargs = {}
 
     url = "{}/{}/listen?".format(baseURL, version)
-    request_kwargs = {**request_kwargs, **{'punctuate': 'true'}}
+    request_kwargs = {**request_kwargs, **{'punctuate': 'false', 'model': 'general-enhanced'}}
     response = requests.post(
         url, headers=headers, data=data, params=request_kwargs,
         timeout=600
