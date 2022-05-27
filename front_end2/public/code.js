@@ -35,29 +35,32 @@
 				});
 
 				mediaRecorder.addEventListener("stop", () => {
-					const audioBlob = new Blob(audioChunks, {type: 'audio/webm;codecs=opus'});
+					const audioBlob = new Blob(audioChunks, { type: 'audio/webm;codecs=opus' });
 					const audioUrl = URL.createObjectURL(audioBlob);
 					const audio = new Audio(audioUrl);
-					audio.play();
+					// audio.play();
+
+					// postData();
+					postData().then(data => {
+						// console.log(data); // JSON data parsed by `data.json()` call
+						const img = data[data.length-1]['img'];
+						renderMessage("my", {
+							username: uname,
+							image: img
+						});
+						socket.emit("chat", {
+							username: uname,
+							image: img
+						});
+					});
+
 				});
 
 				setTimeout(() => {
 					mediaRecorder.stop();
 					document.getElementById("send-message").style.backgroundColor = oldColor;
-
-					renderMessage("my", {
-						username: uname,
-						text: "Insert Image"
-					});
-					socket.emit("chat", {
-						username: uname,
-						text: "Insert Image"
-					});
-
 					document.getElementById("send-message").disabled = false;
-
-					
-				}, 5000);
+				}, 1000);
 			});
 
 		// app.querySelector(".chat-screen #message-input").value = "";
@@ -76,6 +79,31 @@
 		renderMessage("other", message);
 	});
 
+	async function postData() {
+		// Default options are marked with *
+		// const response = fetch('http://sv1-j.node.sv1.consul:8094/text2img', {
+		const response = await fetch('http://127.0.0.1:8080/text2img', {
+			method: 'POST', // *GET, POST, PUT, DELETE, etc.
+			// mode: 'no-cors', // no-cors, *cors, same-origin
+			// cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+			// credentials: 'same-origin', // include, *same-origin, omit
+			headers: {
+				'Content-Type': 'application/json'
+				// 'Authorization': 'Token b1c4bc5158fcad129d1d2412cf461e88bab70321'
+				// 'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			// redirect: 'follow', // manual, *follow, error
+			// referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+			body: "{\"text\": \"party\"}" // body data type must match "Content-Type" header
+		});
+		// .then(res => {
+		// 	console.log(res.json());
+			
+		// });
+		// console.log(response.json())
+		return response.json(); // parses JSON response into native JavaScript objects
+	}
+
 	function renderMessage(type, message) {
 		let messageContainer = app.querySelector(".chat-screen .messages");
 		console.log(message);
@@ -85,7 +113,7 @@
 			el.innerHTML = `
 				<div>
 					<div class="name">You</div>
-					<div class="text">${message.text}</div>
+					<div> <img src="data:image/png;base64,${message.image}" width="90%" height="90%"/> </div>
 				</div>
 			`;
 			messageContainer.appendChild(el);

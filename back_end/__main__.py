@@ -7,7 +7,7 @@ import glob
 import os
 import pickle
 import shutil
-
+from flask_cors import CORS
 
 ### SETUP: FLASK ###
 app = Flask('gramophone')
@@ -15,6 +15,7 @@ app = Flask('gramophone')
 ### Setup logger ###
 logger = logging.getLogger(__name__)
 
+CORS(app)
 
 ###############################################################################
 def parse_args():
@@ -66,8 +67,10 @@ def speech2img():
 
 @app.route('/text2img', methods=['POST'])
 def text2img():
+    print(request)
     return jsonify(
         get_new_image_and_history(request.json['text'])
+        # get_new_image_and_history(request)
     )
 
 
