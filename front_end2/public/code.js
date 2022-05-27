@@ -60,7 +60,7 @@
 					mediaRecorder.stop();
 					document.getElementById("send-message").style.backgroundColor = oldColor;
 					document.getElementById("send-message").disabled = false;
-				}, 1000);
+				}, 3000);
 			});
 
 		// app.querySelector(".chat-screen #message-input").value = "";
@@ -112,7 +112,7 @@
 			el.setAttribute("class", "message my-message");
 			el.innerHTML = `
 				<div>
-					<div class="name">You</div>
+					<div class="name">You:</div>
 					<div> <img src="data:image/png;base64,${message.image}" width="90%" height="90%"/> </div>
 				</div>
 			`;
@@ -123,7 +123,7 @@
 			el.innerHTML = `
 				<div>
 					<div class="name">${message.username}</div>
-					<div> <img src="data:image/png;base64,${message.image}" width="90%" height="90%"/> </div>
+					<div> <img src="data:image/png;base64,${message.image}" width="100%" height="90%"/> </div>
 				</div>
 			`;
 			messageContainer.appendChild(el);
